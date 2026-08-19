@@ -1,0 +1,9 @@
+{
+  "name": "SRS Cards",
+  "short_name": "SRS Cards",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f6f7fb",
+  "theme_color": "#6d5dfc",
+  "description": "SRS-карточки с папками, наборами и интервальным повторением"
+}
