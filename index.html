@@ -818,7 +818,13 @@ document.getElementById("authSubmit").onclick=async()=>{
   if(!email||password.length<6){msg.className="auth-message error";msg.textContent="Введите email и пароль не короче 6 символов.";return}
   const sb=window.__supabase;
   if(authMode==="signup"){
-    const {data:result,error}=await sb.auth.signUp({email,password});
+    const {data:result,error}=await sb.auth.signUp({
+  email,
+  password,
+  options:{
+    emailRedirectTo: window.location.origin + window.location.pathname
+  }
+});
     if(error){msg.className="auth-message error";msg.textContent=error.message;return}
     if(result.session){msg.className="auth-message ok";msg.textContent="Аккаунт создан.";await enterApp(result.user)}
     else{msg.className="auth-message ok";msg.textContent="Аккаунт создан. Проверьте email и подтвердите регистрацию."}
