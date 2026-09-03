@@ -836,32 +836,33 @@ document.getElementById("authSubmit").onclick=async()=>{
 };
 document.getElementById("signOutBtn").onclick=async()=>{
   const btn=document.getElementById("signOutBtn");
-  const original=btn.textContent;
   btn.disabled=true;
   btn.textContent="Выходим…";
+
+  const sb=window.__supabase;
+
   try{
-    const sb=window.__supabase;
-    if(!sb) throw new Error("Supabase не подключён");
-    const {error}=await sb.auth.signOut();
-    if(error) throw error;
-
-    currentUser=null;
-    cloudReady=false;
-    data={folders:[],decks:[],cards:[],history:[]};
-
-    document.getElementById("mainApp").style.display="none";
-    document.getElementById("setupGate").style.display="none";
-    document.getElementById("authGate").style.display="block";
-    document.getElementById("authPassword").value="";
-    document.getElementById("authMessage").className="auth-message ok";
-    document.getElementById("authMessage").textContent="Вы вышли из аккаунта.";
+    if(sb){
+      await Promise.race([
+        sb.auth.signOut({scope:"local"}),
+        new Promise(resolve=>setTimeout(resolve,3000))
+      ]);
+    }
   }catch(err){
     console.error("Sign out error:",err);
-    alert("Не удалось выйти из аккаунта: "+(err?.message||"неизвестная ошибка"));
-  }finally{
-    btn.disabled=false;
-    btn.textContent=original;
   }
+
+  currentUser=null;
+  cloudReady=false;
+  data={folders:[],decks:[],cards:[],history:[]};
+
+  document.getElementById("mainApp").style.display="none";
+  document.getElementById("setupGate").style.display="none";
+  document.getElementById("authGate").style.display="block";
+  document.getElementById("authPassword").value="";
+
+  btn.disabled=false;
+  btn.textContent="Выйти";
 };
 document.getElementById("syncNowBtn").onclick=()=>pushCloudData();
 document.getElementById("importLocalBtn").onclick=async()=>{
