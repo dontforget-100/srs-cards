@@ -771,25 +771,47 @@ if(document.getElementById("bulkCreateBtn")) document.getElementById("bulkCreate
 
 
 async function bootAuth(){
-  const loading=document.getElementById("loadingGate"),setup=document.getElementById("setupGate"),auth=document.getElementById("authGate"),app=document.getElementById("mainApp");
-  loading.style.display="none";
+  const loading=document.getElementById("loadingGate");
+  const setup=document.getElementById("setupGate");
+  const auth=document.getElementById("authGate");
+  const app=document.getElementById("mainApp");
+
+  setup.style.display="none";
+  auth.style.display="none";
+  app.style.display="none";
+  loading.style.display="block";
+
   if(!window.__cloudConfigured){
-    setup.style.display="block";auth.style.display="none";app.style.display="none";return;
+    loading.style.display="none";
+    setup.style.display="block";
+    return;
   }
+
   const sb=window.__supabase;
-  const {data:{session}}=await sb.auth.getSession();
-  if(session?.user){
-    await enterApp(session.user);
-  }else{
-    setup.style.display="none";auth.style.display="block";app.style.display="none";
-  }
-  sb.auth.onAuthStateChange(async (event,session)=>{
-    if(event==="SIGNED_IN"&&session?.user)await enterApp(session.user);
-    if(event==="SIGNED_OUT"){
-      currentUser=null;cloudReady=false;app.style.display="none";auth.style.display="block";
-      document.getElementById("authPassword").value="";
+
+  try{
+    const result=await Promise.race([
+      sb.auth.getSession(),
+      new Promise((_,reject)=>
+        setTimeout(()=>reject(new Error("Session timeout")),5000)
+      )
+    ]);
+
+    loading.style.display="none";
+
+    const session=result?.data?.session;
+
+    if(session?.user){
+      await enterApp(session.user);
+    }else{
+      auth.style.display="block";
     }
-  });
+  }catch(err){
+    console.error("Session check error:",err);
+
+    loading.style.display="none";
+    auth.style.display="block";
+  }
 }
 async function enterApp(user){
   currentUser=user;
@@ -851,7 +873,12 @@ document.getElementById("signOutBtn").onclick=async()=>{
   }catch(err){
     console.error("Sign out error:",err);
   }
-
+for(let i=localStorage.length-1;i>=0;i--){
+  const key=localStorage.key(i);
+  if(key && key.startsWith("sb-")){
+    localStorage.removeItem(key);
+  }
+}
   currentUser=null;
   cloudReady=false;
   data={folders:[],decks:[],cards:[],history:[]};
