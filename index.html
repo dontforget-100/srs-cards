@@ -439,6 +439,7 @@ const uid=()=>crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.rando
 
 let data={folders:[],decks:[],cards:[],history:[]};
 let currentUser=null;
+let realtimeChannel = null;
 let cloudReady=false;
 let saveTimer=null;
 
@@ -815,11 +816,41 @@ async function bootAuth(){
 }
 async function enterApp(user){
   currentUser=user;
+
   document.getElementById("setupGate").style.display="none";
   document.getElementById("authGate").style.display="none";
   document.getElementById("mainApp").style.display="block";
   document.getElementById("profileEmail").textContent=user.email||"";
+
   await loadCloudData();
+
+  const sb=window.__supabase;
+
+  if(realtimeChannel){
+    await sb.removeChannel(realtimeChannel);
+    realtimeChannel=null;
+  }
+
+  realtimeChannel=sb
+    .channel("user-data-"+user.id)
+    .on(
+      "postgres_changes",
+      {
+        event:"UPDATE",
+        schema:"public",
+        table:"user_data",
+        filter:`user_id=eq.${user.id}`
+      },
+      payload=>{
+        if(payload.new?.data){
+          data=payload.new.data;
+          normalizeStageResults();
+          renderAll();
+          setCloudState("Синхронизировано","ok");
+        }
+      }
+    )
+    .subscribe();
 }
 let authMode="login";
 function setAuthMode(mode){
@@ -878,6 +909,10 @@ for(let i=localStorage.length-1;i>=0;i--){
   if(key && key.startsWith("sb-")){
     localStorage.removeItem(key);
   }
+}
+  if(realtimeChannel && sb){
+  await sb.removeChannel(realtimeChannel);
+  realtimeChannel=null;
 }
   currentUser=null;
   cloudReady=false;
