@@ -836,7 +836,7 @@ async function enterApp(user){
     .on(
       "postgres_changes",
       {
-        event:"UPDATE",
+        event:"*",
         schema:"public",
         table:"user_data",
         filter:`user_id=eq.${user.id}`
@@ -926,7 +926,9 @@ for(let i=localStorage.length-1;i>=0;i--){
   btn.disabled=false;
   btn.textContent="Выйти";
 };
-document.getElementById("syncNowBtn").onclick=()=>pushCloudData();
+document.getElementById("syncNowBtn").onclick=async()=>{
+  await loadCloudData();
+};
 document.getElementById("importLocalBtn").onclick=async()=>{
   const legacy=getLegacyLocal();
   if(!legacy){alert("Локальные данные v7 на этом устройстве не найдены.");return}
