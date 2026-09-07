@@ -80,22 +80,11 @@ self.addEventListener("fetch", event => {
 });
 
 self.addEventListener("push", event => {
-  console.log("PUSH EVENT RECEIVED", event);
-
-  event.waitUntil(
-    caches.open("push-debug").then(cache =>
-      cache.put(
-        "./push-last.txt",
-        new Response(new Date().toISOString())
-      )
-    )
-  );
-
   let data = {};
 
   try {
     data = event.data ? event.data.json() : {};
-  } catch {
+  } catch (err) {
     data = {
       title: "SRS Cards",
       body: event.data ? event.data.text() : "Пора повторить карточки"
@@ -103,22 +92,40 @@ self.addEventListener("push", event => {
   }
 
   const title = data.title || "SRS Cards";
-
-  const options = {
-    body: data.body || "Пора повторить карточки",
-    icon: "./icon-192.png",
-    badge: "./icon-192.png",
-    tag: data.tag || "srs-review",
-    data: {
-      url: data.url || "./"
-    }
-  };
+  const body = data.body || "Пора повторить карточки";
 
   event.waitUntil(
-    self.registration.showNotification(title, options)
+    (async () => {
+      const cache = await caches.open("push-debug");
+
+      await cache.put(
+        "./push-last.txt",
+        new Response(new Date().toISOString())
+      );
+
+      try {
+        await self.registration.showNotification(title, {
+          body: body
+        });
+
+        await cache.put(
+          "./push-result.txt",
+          new Response("SHOW_NOTIFICATION_OK")
+        );
+      } catch (err) {
+        await cache.put(
+          "./push-result.txt",
+          new Response(
+            "SHOW_NOTIFICATION_ERROR: " +
+            (err?.name || "") +
+            " " +
+            (err?.message || String(err))
+          )
+        );
+      }
+    })()
   );
 });
-
 self.addEventListener("notificationclick", event => {
   event.notification.close();
 
