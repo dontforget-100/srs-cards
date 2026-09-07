@@ -2,8 +2,21 @@
   "name": "SRS Cards",
   "short_name": "SRS Cards",
   "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#f6f7fb",
   "theme_color": "#6d5dfc",
-  "description": "SRS-карточки с папками, наборами и интервальным повторением"
+  "description": "SRS-карточки с папками, наборами и интервальным повторением",
+  "icons": [
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
 }
