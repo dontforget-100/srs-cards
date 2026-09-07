@@ -81,6 +81,16 @@ self.addEventListener("fetch", event => {
 
 self.addEventListener("push", event => {
   console.log("PUSH EVENT RECEIVED", event);
+
+  event.waitUntil(
+    caches.open("push-debug").then(cache =>
+      cache.put(
+        "./push-last.txt",
+        new Response(new Date().toISOString())
+      )
+    )
+  );
+
   let data = {};
 
   try {
