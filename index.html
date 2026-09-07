@@ -541,6 +541,7 @@ let currentUser=null;
 let realtimeChannel = null;
 let cloudReady=false;
 let saveTimer=null;
+const VAPID_PUBLIC_KEY = "BGasNwq9vLPcVrtnXBXynxuXnQQ8Dxd_ZzXiltUiAnsitcoYT5bFI5RxG4MHxyMl48Do1UEy4AqJV3FY4aypahQ";
 
 function getLegacyLocal(){
   return JSON.parse(localStorage.getItem("srsV7")||localStorage.getItem("srsV6")||localStorage.getItem("srsV5")||"null");
