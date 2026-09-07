@@ -80,6 +80,7 @@ self.addEventListener("fetch", event => {
 });
 
 self.addEventListener("push", event => {
+  console.log("PUSH EVENT RECEIVED", event);
   let data = {};
 
   try {
