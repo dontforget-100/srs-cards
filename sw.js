@@ -107,6 +107,7 @@ self.addEventListener("push", event => {
         await self.registration.showNotification(title, {
   body: body,
   icon: "./icon-192.png",
+  tag: data.tag || "srs-review",
   data: {
     url: data.url || "./"
   }
