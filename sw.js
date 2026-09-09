@@ -108,6 +108,7 @@ self.addEventListener("push", event => {
   body: body,
   icon: "./icon-192.png",
   tag: data.tag || "srs-review",
+  renotify: true,
   data: {
     url: data.url || "./"
   }
