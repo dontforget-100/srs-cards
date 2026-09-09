@@ -105,8 +105,12 @@ self.addEventListener("push", event => {
 
       try {
         await self.registration.showNotification(title, {
-          body: body
-        });
+  body: body,
+  icon: "./icon-192.png",
+  data: {
+    url: data.url || "./"
+  }
+});
 
         await cache.put(
           "./push-result.txt",
