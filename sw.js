@@ -103,6 +103,17 @@ self.addEventListener("push", event => {
         new Response(new Date().toISOString())
       );
 
+      await cache.put(
+  "./push-data.txt",
+  new Response(JSON.stringify({
+    title: title,
+    body: body,
+    tag: data.tag || null,
+    url: data.url || null,
+    rawData: data
+  }, null, 2))
+);
+
       try {
         await self.registration.showNotification(title, {
   body: body,
