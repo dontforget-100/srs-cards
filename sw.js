@@ -47,9 +47,7 @@ self.addEventListener("fetch", event => {
 
           return response;
         })
-        .catch(() =>
-          caches.match("./index.html")
-        )
+        .catch(() => caches.match("./index.html"))
     );
 
     return;
@@ -84,83 +82,53 @@ self.addEventListener("push", event => {
 
   try {
     data = event.data ? event.data.json() : {};
-  } catch (err) {
+  } catch {
     data = {
       title: "SRS Cards",
-      body: event.data ? event.data.text() : "Пора повторить карточки"
+      body: event.data
+        ? event.data.text()
+        : "Пора повторить карточки"
     };
   }
 
   const title = data.title || "SRS Cards";
-  const body = data.body || "Пора повторить карточки";
+
+  const options = {
+    body: data.body || "Пора повторить карточки",
+    icon: "./icon-192.png",
+    badge: "./icon-192.png",
+    tag: data.tag || "srs-review",
+    renotify: true,
+    data: {
+      url: data.url || "./"
+    }
+  };
 
   event.waitUntil(
-    (async () => {
-      const cache = await caches.open("push-debug");
-
-      await cache.put(
-        "./push-last.txt",
-        new Response(new Date().toISOString())
-      );
-
-      await cache.put(
-  "./push-data.txt",
-  new Response(JSON.stringify({
-    title: title,
-    body: body,
-    tag: data.tag || null,
-    url: data.url || null,
-    rawData: data
-  }, null, 2))
-);
-
-      try {
-        await self.registration.showNotification(title, {
-  body: body,
-  icon: "./icon-192.png",
-  tag: data.tag || "srs-review",
-  renotify: true,
-  data: {
-    url: data.url || "./"
-  }
-});
-
-        await cache.put(
-          "./push-result.txt",
-          new Response("SHOW_NOTIFICATION_OK")
-        );
-      } catch (err) {
-        await cache.put(
-          "./push-result.txt",
-          new Response(
-            "SHOW_NOTIFICATION_ERROR: " +
-            (err?.name || "") +
-            " " +
-            (err?.message || String(err))
-          )
-        );
-      }
-    })()
+    self.registration.showNotification(title, options)
   );
 });
+
 self.addEventListener("notificationclick", event => {
   event.notification.close();
 
   const url = event.notification.data?.url || "./";
 
   event.waitUntil(
-    clients.matchAll({
-      type: "window",
-      includeUncontrolled: true
-    }).then(windowClients => {
-      for (const client of windowClients) {
-        if ("focus" in client) {
-          client.navigate(url);
-          return client.focus();
+    clients
+      .matchAll({
+        type: "window",
+        includeUncontrolled: true
+      })
+      .then(windowClients => {
+        for (const client of windowClients) {
+          if ("focus" in client) {
+            client.navigate(url);
+            return client.focus();
+          }
         }
-      }
 
-      return clients.openWindow(url);
-    })
+        return clients.openWindow(url);
+      })
   );
 });
