@@ -683,11 +683,20 @@ function renderWords(){
  cards.sort((a,b)=>b.createdAt-a.createdAt);
  wordList.innerHTML=cards.map(c=>{
    const f=folderById(c.folderId),d=deckById(c.deckId);
-   return `<div class="row"><div><div><strong>${esc(c.front)}</strong> — ${esc(c.back)}</div>
+   return `<div class="row">
+<div style="display:flex;align-items:flex-start;gap:12px;flex:1">
+<input type="checkbox"
+       class="move-card-checkbox"
+       value="${c.id}"
+       style="width:18px;height:18px;margin-top:3px;flex:none">
+<div><div><strong>${esc(c.front)}</strong> — ${esc(c.back)}</div>
    <div class="meta"><span class="pill">${esc(f?.name||"")}</span><span class="pill">${esc(d?.name||"")}</span>
    ${c.completed?"Цикл завершён":`Следующее: ${fmt(c.nextReviewAt)} · этап ${Math.min(c.stage+1,8)}/8`}</div>
    <div class="progress"><i style="width:${progressPct(c)}%"></i></div></div>
-   <div><button class="btn small" onclick="editCard('${c.id}')">Изм.</button> <button class="btn small bad" onclick="deleteCard('${c.id}')">Удал.</button></div></div>`
+   <div>
+  <button class="btn small" onclick="editCard('${c.id}')">Изм.</button>
+  <button class="btn small bad" onclick="deleteCard('${c.id}')">Удал.</button>
+</div></div></div>`
  }).join("")
 }
 function getReviewCards(){
