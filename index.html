@@ -474,6 +474,32 @@ body{background:linear-gradient(180deg,#fbfbfe 0,#f6f7fb 100%)}
 </section>
 </div>
 
+  <div class="modal" id="moveCardsModal">
+  <div class="sheet">
+    <h3>Переместить карточки</h3>
+
+    <div class="field">
+      <label>Папка</label>
+      <select id="moveFolderSelect"></select>
+    </div>
+
+    <div class="field">
+      <label>Набор</label>
+      <select id="moveDeckSelect"></select>
+    </div>
+
+    <div class="toolbar" style="margin-top:16px">
+      <button class="btn primary" id="confirmMoveCardsBtn" type="button">
+        Переместить
+      </button>
+
+      <button class="btn" type="button" data-close="moveCardsModal">
+        Отмена
+      </button>
+    </div>
+  </div>
+</div>
+
 <div class="modal" id="folderModal"><div class="sheet">
  <div class="sheethead"><h2 id="folderModalTitle">Новая папка</h2><button class="x" data-close="folderModal">✕</button></div>
  <div class="field"><label>Название папки</label><input id="folderNameInput" placeholder="Например: Корейский"></div>
@@ -746,6 +772,63 @@ document.getElementById("selectAllCardsBtn").onclick=()=>{
   });
 
   updateMoveCardsToolbar();
+};
+  const moveCardsBtn=document.getElementById("moveCardsBtn");
+const moveFolderSelect=document.getElementById("moveFolderSelect");
+const moveDeckSelect=document.getElementById("moveDeckSelect");
+const confirmMoveCardsBtn=document.getElementById("confirmMoveCardsBtn");
+
+function fillMoveDecks(){
+  const folderId=moveFolderSelect.value;
+
+  const decks=data.decks.filter(d=>d.folderId===folderId);
+
+  moveDeckSelect.innerHTML=decks
+    .map(d=>`<option value="${d.id}">${esc(d.name)}</option>`)
+    .join("");
+}
+
+moveFolderSelect.onchange=fillMoveDecks;
+
+moveCardsBtn.onclick=()=>{
+  const selected=[
+    ...document.querySelectorAll(".move-card-checkbox:checked")
+  ];
+
+  if(!selected.length) return;
+
+  moveFolderSelect.innerHTML=data.folders
+    .map(f=>`<option value="${f.id}">${esc(f.name)}</option>`)
+    .join("");
+
+  fillMoveDecks();
+  openModal("moveCardsModal");
+};
+
+confirmMoveCardsBtn.onclick=()=>{
+  const selectedIds=[
+    ...document.querySelectorAll(".move-card-checkbox:checked")
+  ].map(box=>box.value);
+
+  if(!selectedIds.length) return;
+
+  const folderId=moveFolderSelect.value;
+  const deckId=moveDeckSelect.value;
+
+  if(!folderId || !deckId){
+    alert("Выбери папку и набор.");
+    return;
+  }
+
+  data.cards.forEach(card=>{
+    if(selectedIds.includes(card.id)){
+      card.folderId=folderId;
+      card.deckId=deckId;
+    }
+  });
+
+  closeModal("moveCardsModal");
+  save();
 };
 function getReviewCards(){
  const ff=reviewFolderFilter.value||"all",df=reviewDeckFilter.value||"all",now=Date.now();
