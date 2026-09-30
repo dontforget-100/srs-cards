@@ -707,9 +707,21 @@ function renderDecks(){
  deckGrid.innerHTML=decks.map(d=>{
    const f=folderById(d.folderId),cards=data.cards.filter(c=>c.deckId===d.id),due=cards.filter(c=>!c.completed&&c.nextReviewAt<=Date.now()).length;
    return `<div class="deck" onclick="openDeck('${d.id}')">
-    <button class="btn small ghost menu" onclick="event.stopPropagation();editDeck('${d.id}')">•••</button>
-    <h3>${esc(d.name)}</h3><p>${esc(f?.name||"")} ${d.description?"· "+esc(d.description):""}</p><div class="count">${cards.length}</div><p>карточек · ${due} сейчас к повторению</p>
-   </div>`
+<button class="btn small ghost menu" onclick="event.stopPropagation();editDeck('${d.id}')">•••</button>
+
+<h3>${esc(d.name)}</h3>
+<p>${esc(f?.name||"")} ${d.description?" · "+esc(d.description):""}</p>
+
+<div class="count">${cards.length}</div>
+<p>карточек · ${due} сейчас к повторению</p>
+
+<button
+  class="btn small"
+  style="margin-top:10px"
+  onclick="event.stopPropagation();startFreeReview('${d.id}')">
+  Повторить
+</button>
+</div>`
  }).join("")
 }
 function openFolder(id){switchTab("decks");deckFolderFilter.value=id;renderDecks()}
