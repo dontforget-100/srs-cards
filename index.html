@@ -839,6 +839,7 @@ function decideOrientation(card){
  return dir==="random"?(Math.random()<.5?"front":"back"):dir
 }
 function renderReview(){
+  updateDirectionLabels();
  const q=getReviewCards();if(!q.length){reviewArea.innerHTML='<div class="empty"><b>Сейчас всё повторено 🎉</b>Карточки появятся здесь автоматически.</div>';return}
  if(reviewIndex>=q.length)reviewIndex=0;const c=q[reviewIndex],f=folderById(c.folderId),d=deckById(c.deckId),o=decideOrientation(c);
  const a=o==="front"?c.front:c.back,b=o==="front"?c.back:c.front;
