@@ -712,6 +712,41 @@ function renderWords(){
 </div></div></div>`
  }).join("")
 }
+  function updateMoveCardsToolbar(){
+  const boxes=[...document.querySelectorAll(".move-card-checkbox")];
+  const selected=boxes.filter(box=>box.checked);
+
+  const countEl=document.getElementById("selectedCardsCount");
+  const moveBtn=document.getElementById("moveCardsBtn");
+  const selectAllBtn=document.getElementById("selectAllCardsBtn");
+
+  if(countEl) countEl.textContent=`Выбрано: ${selected.length}`;
+  if(moveBtn) moveBtn.disabled=selected.length===0;
+
+  if(selectAllBtn){
+    selectAllBtn.textContent=
+      boxes.length>0 && selected.length===boxes.length
+        ? "Снять выбор"
+        : "Выбрать все";
+  }
+}
+
+document.addEventListener("change",e=>{
+  if(e.target.classList.contains("move-card-checkbox")){
+    updateMoveCardsToolbar();
+  }
+});
+
+document.getElementById("selectAllCardsBtn").onclick=()=>{
+  const boxes=[...document.querySelectorAll(".move-card-checkbox")];
+  const allSelected=boxes.length>0 && boxes.every(box=>box.checked);
+
+  boxes.forEach(box=>{
+    box.checked=!allSelected;
+  });
+
+  updateMoveCardsToolbar();
+};
 function getReviewCards(){
  const ff=reviewFolderFilter.value||"all",df=reviewDeckFilter.value||"all",now=Date.now();
  return data.cards.filter(c=>!c.completed&&c.nextReviewAt<=now&&(ff==="all"||c.folderId===ff)&&(df==="all"||c.deckId===df)).sort((a,b)=>a.nextReviewAt-b.nextReviewAt)
