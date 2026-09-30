@@ -500,6 +500,32 @@ body{background:linear-gradient(180deg,#fbfbfe 0,#f6f7fb 100%)}
   </div>
 </div>
 
+  <div class="modal" id="freeReviewModal">
+  <div class="sheet">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+      <div>
+        <h3 id="freeReviewTitle" style="margin:0">Повторение</h3>
+        <div class="muted" id="freeReviewCounter"></div>
+      </div>
+
+      <button class="btn small" type="button" id="closeFreeReviewBtn">
+        Закрыть
+      </button>
+    </div>
+
+    <div style="margin-top:14px">
+      <select id="freeReviewDirection">
+        <option value="folder">Направление папки</option>
+        <option value="front">A → B</option>
+        <option value="back">B → A</option>
+        <option value="random">Случайно</option>
+      </select>
+    </div>
+
+    <div id="freeReviewArea" style="margin-top:16px"></div>
+  </div>
+</div>
+
 <div class="modal" id="folderModal"><div class="sheet">
  <div class="sheethead"><h2 id="folderModalTitle">Новая папка</h2><button class="x" data-close="folderModal">✕</button></div>
  <div class="field"><label>Название папки</label><input id="folderNameInput" placeholder="Например: Корейский"></div>
