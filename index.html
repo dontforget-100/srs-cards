@@ -912,7 +912,12 @@ function switchTab(id){document.querySelectorAll(".nav button").forEach(b=>b.cla
 document.querySelectorAll(".nav button").forEach(b=>b.onclick=()=>switchTab(b.dataset.tab));
 
 addFolder.onchange=syncAddDeck;editFolder.onchange=syncEditDeck;
-reviewFolderFilter.onchange=()=>{syncReviewDeck();reviewIndex=0;renderReview()};
+reviewFolderFilter.onchange=()=>{
+  syncReviewDeck();
+  updateDirectionLabels();
+  reviewIndex=0;
+  renderReview();
+};
 reviewDeckFilter.onchange=()=>{reviewIndex=0;renderReview()};
 directionFilter.onchange=()=>{reviewIndex=0;renderReview()};
 wordFolderFilter.onchange=()=>{syncWordDeck();renderWords()};wordDeckFilter.onchange=renderWords;searchInput.oninput=renderWords;
@@ -934,6 +939,27 @@ function editFolder(id){const f=folderById(id);currentFolderEditId=id;folderModa
 saveFolderBtn.onclick=()=>{const name=folderNameInput.value.trim();if(!name)return alert("Введите название папки.");const obj={name,langA:folderLangA.value.trim(),langB:folderLangB.value.trim(),direction:folderDirection.value};
  if(currentFolderEditId)Object.assign(folderById(currentFolderEditId),obj);else{const f={id:uid(),createdAt:Date.now(),...obj};data.folders.push(f);data.decks.push({id:uid(),folderId:f.id,name:"Основной набор",description:"",createdAt:Date.now()})}
  closeModal("folderModal");save()};
+
+  function updateDirectionLabels(){
+  const folderId=reviewFolderFilter.value;
+
+  let langA="A";
+  let langB="B";
+
+  if(folderId && folderId!=="all"){
+    const f=folderById(folderId);
+    if(f){
+      langA=f.langA || "A";
+      langB=f.langB || "B";
+    }
+  }
+
+  const frontOption=directionFilter.querySelector('option[value="front"]');
+  const backOption=directionFilter.querySelector('option[value="back"]');
+
+  if(frontOption) frontOption.textContent=`${langA} → ${langB}`;
+  if(backOption) backOption.textContent=`${langB} → ${langA}`;
+}
 
 newDeckBtn.onclick=()=>{currentDeckEditId=null;fillSelects();deckModalTitle.textContent="Новый набор";deckNameInput.value="";deckDescInput.value="";if(deckFolderFilter.value!=="all")deckFolderInput.value=deckFolderFilter.value;openModal("deckModal")};
 function editDeck(id){const d=deckById(id);currentDeckEditId=id;fillSelects();deckModalTitle.textContent="Редактировать набор";deckFolderInput.value=d.folderId;deckNameInput.value=d.name;deckDescInput.value=d.description||"";openModal("deckModal")}
