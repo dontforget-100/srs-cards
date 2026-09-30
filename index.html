@@ -426,6 +426,19 @@ body{background:linear-gradient(180deg,#fbfbfe 0,#f6f7fb 100%)}
     <select id="wordDeckFilter" style="max-width:220px"></select>
     <input id="searchInput" placeholder="Поиск слова или перевода" style="max-width:300px">
   </div>
+  <div class="toolbar" id="moveCardsToolbar" style="margin:0 0 12px 0">
+  <button class="btn small" id="selectAllCardsBtn" type="button">
+    Выбрать все
+  </button>
+
+  <span class="muted" id="selectedCardsCount">
+    Выбрано: 0
+  </span>
+
+  <button class="btn small primary" id="moveCardsBtn" type="button" disabled>
+    Переместить
+  </button>
+</div>
   <div id="wordList" class="list"></div>
 </section>
 
