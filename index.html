@@ -868,6 +868,159 @@ confirmMoveCardsBtn.onclick=()=>{
   closeModal("moveCardsModal");
   save();
 };
+  let freeReviewCards=[];
+let freeReviewIndex=0;
+let freeReviewKnown=0;
+let freeReviewUnknown=0;
+let freeReviewDeckId=null;
+
+function startFreeReview(deckId){
+  const deck=deckById(deckId);
+  if(!deck) return;
+
+  freeReviewDeckId=deckId;
+  freeReviewCards=data.cards.filter(c=>c.deckId===deckId);
+
+  if(!freeReviewCards.length){
+    alert("В этом наборе пока нет карточек.");
+    return;
+  }
+
+  freeReviewIndex=0;
+  freeReviewKnown=0;
+  freeReviewUnknown=0;
+
+  document.getElementById("freeReviewTitle").textContent=deck.name;
+
+  updateFreeReviewDirectionLabels(deck);
+  renderFreeReview();
+  openModal("freeReviewModal");
+}
+
+function updateFreeReviewDirectionLabels(deck){
+  const folder=folderById(deck.folderId);
+  const select=document.getElementById("freeReviewDirection");
+
+  const langA=folder?.langA || "A";
+  const langB=folder?.langB || "B";
+
+  const front=select.querySelector('option[value="front"]');
+  const back=select.querySelector('option[value="back"]');
+
+  if(front) front.textContent=`${langA} → ${langB}`;
+  if(back) back.textContent=`${langB} → ${langA}`;
+}
+
+function getFreeReviewOrientation(card){
+  const mode=document.getElementById("freeReviewDirection").value;
+
+  if(mode==="random"){
+    return Math.random()<0.5 ? "front" : "back";
+  }
+
+  if(mode==="folder"){
+    const folder=folderById(card.folderId);
+    return folder?.direction || "front";
+  }
+
+  return mode;
+}
+
+function renderFreeReview(){
+  const area=document.getElementById("freeReviewArea");
+  const counter=document.getElementById("freeReviewCounter");
+
+  if(freeReviewIndex>=freeReviewCards.length){
+    counter.textContent="Готово";
+
+    area.innerHTML=`
+      <div class="empty">
+        <b>Повторение завершено 🎉</b>
+        <div style="margin-top:10px">
+          Помню: ${freeReviewKnown}<br>
+          Не помню: ${freeReviewUnknown}
+        </div>
+
+        <button class="btn primary"
+                style="margin-top:16px"
+                onclick="restartFreeReview()">
+          Повторить ещё раз
+        </button>
+      </div>
+    `;
+    return;
+  }
+
+  const card=freeReviewCards[freeReviewIndex];
+  const orientation=getFreeReviewOrientation(card);
+
+  const front=orientation==="front" ? card.front : card.back;
+  const back=orientation==="front" ? card.back : card.front;
+
+  counter.textContent=
+    `${freeReviewIndex+1} / ${freeReviewCards.length}`;
+
+  area.innerHTML=`
+    <div class="flashwrap">
+      <div class="flash" id="freeFlash">
+        <div class="face">
+          <div class="bigword">${esc(front)}</div>
+          <div class="hint">Нажми, чтобы перевернуть</div>
+        </div>
+
+        <div class="face back">
+          <div class="bigtrans">${esc(back)}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions2">
+      <button class="btn bad"
+              onclick="answerFreeReview(false)">
+        Не помню
+      </button>
+
+      <button class="btn good"
+              onclick="answerFreeReview(true)">
+        Помню
+      </button>
+    </div>
+  `;
+
+  document.getElementById("freeFlash").onclick=e=>{
+    e.currentTarget.classList.toggle("flipped");
+  };
+}
+
+function answerFreeReview(known){
+  if(known){
+    freeReviewKnown++;
+  }else{
+    freeReviewUnknown++;
+  }
+
+  freeReviewIndex++;
+  renderFreeReview();
+}
+
+function restartFreeReview(){
+  freeReviewIndex=0;
+  freeReviewKnown=0;
+  freeReviewUnknown=0;
+  renderFreeReview();
+}
+
+document.getElementById("freeReviewDirection").onchange=()=>{
+  renderFreeReview();
+};
+
+document.getElementById("closeFreeReviewBtn").onclick=()=>{
+  closeModal("freeReviewModal");
+};
+
+window.startFreeReview=startFreeReview;
+window.answerFreeReview=answerFreeReview;
+window.restartFreeReview=restartFreeReview;
 function getReviewCards(){
  const ff=reviewFolderFilter.value||"all",df=reviewDeckFilter.value||"all",now=Date.now();
  return data.cards.filter(c=>!c.completed&&c.nextReviewAt<=now&&(ff==="all"||c.folderId===ff)&&(df==="all"||c.deckId===df)).sort((a,b)=>a.nextReviewAt-b.nextReviewAt)
