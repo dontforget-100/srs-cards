@@ -881,14 +881,22 @@ let freeReviewIndex=0;
 let freeReviewKnown=0;
 let freeReviewUnknown=0;
 let freeReviewDeckId=null;
-
+function shuffleFreeReviewCards(){
+  for(let i=freeReviewCards.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [freeReviewCards[i],freeReviewCards[j]]=
+      [freeReviewCards[j],freeReviewCards[i]];
+  }
+}
 function startFreeReview(deckId){
   const deck=deckById(deckId);
   if(!deck) return;
 
   freeReviewDeckId=deckId;
   freeReviewCards=data.cards.filter(c=>c.deckId===deckId);
-
+if(document.getElementById("freeReviewShuffle").checked){
+  shuffleFreeReviewCards();
+}
   if(!freeReviewCards.length){
     alert("В этом наборе пока нет карточек.");
     return;
@@ -1015,6 +1023,11 @@ function restartFreeReview(){
   freeReviewIndex=0;
   freeReviewKnown=0;
   freeReviewUnknown=0;
+
+  if(document.getElementById("freeReviewShuffle").checked){
+    shuffleFreeReviewCards();
+  }
+
   renderFreeReview();
 }
 
